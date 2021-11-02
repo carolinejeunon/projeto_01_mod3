@@ -5,7 +5,7 @@ const cursos = [];
 
 function verificaSeEstaCadastrado(curso, res){
   
-    if (!filme) {
+    if (!curso) {
       res.status(204).json();
       return true;
     };
