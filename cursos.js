@@ -3,29 +3,16 @@ const router = express.Router();
 
 const cursos = [];
 
-router.get("/", (req, res) => {
-    res.status(200).json({message: "Cursos ok!"});
-});
-
-router.get("/listar", (req, res) => {
-    res.status(200).json(cursos);
-});
-
-router.get("/listar/:id", (req, res) => {
-    const id = req.params.id-1;
-    const curso = cursos[id];
+function verificaSeEstaCadastrado(curso, res){
   
-    if (!curso) {
-      res.status(204);
-      return;
-    }
-  
-    res.status(200).json(curso);
-});
+    if (!filme) {
+      res.status(204).json();
+      return true;
+    };
+    return false;
+};
 
-router.post("/", (req, res) => {
-    const curso = req.body;
-
+function verificaSeFaltaParametro(curso, res){
     
     if(!curso.nome){
         res.status(400).json({message:"Nome na requisição está vazio"});
@@ -46,6 +33,34 @@ router.post("/", (req, res) => {
         res.status(400).json({message:"Horário na requisição está vazio"});
         return;
     };
+};
+
+router.get("/", (req, res) => {
+    res.status(200).json({message: "Cursos ok!"});
+});
+
+router.get("/listar", (req, res) => {
+    res.status(200).json(cursos);
+});
+
+router.get("/listar/:id", (req, res) => {
+    const id = req.params.id-1;
+    const curso = cursos[id];
+  
+    if (verificaSeEstaCadastrado(curso, res)){
+        return
+    };
+
+  
+    res.status(200).json(curso);
+});
+
+router.post("/", (req, res) => {
+    const curso = req.body;
+
+    if (verificaSeFaltaParametro(curso, res)){
+        return
+    };
   
     cursos.push(curso);
   
@@ -54,6 +69,10 @@ router.post("/", (req, res) => {
 
 router.put("/:id", (req, res) => {
     const id = req.params.id-1;
+    
+    if (verificaSeEstaCadastrado(cursos[id], res) || verificaSeFaltaParametro(req.body, res)){
+        return;
+    };
 
     cursos[id] = req.body;
   

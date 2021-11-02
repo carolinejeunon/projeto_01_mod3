@@ -3,6 +3,39 @@ const router = express.Router();
 
 const filmes = [];
 
+function verificaSeEstaCadastrado(filme, res){
+  
+    if (!filme) {
+      res.status(204).json();
+      return true;
+    };
+    return false;
+};
+
+function verificaSeFaltaParametro(filme, res){
+    if(!filme.nome){
+        res.status(400).json({message:"Nome na requisição está vazio"});
+        return true;
+    };
+
+    if(!filme.diretor){
+        res.status(400).json({message:"Diretor na requisição está vazio"});
+        return true;
+    };
+
+    if(!filme.genero){
+        res.status(400).json({message:"Gênero na requisição está vazio"});
+        return true;
+    };
+
+    if(!filme.lancamento){
+        res.status(400).json({message:"Lançamento na requisição está vazio"});
+        return true;
+    };
+
+    return false;
+}
+
 router.get("/", (req,res) => {
     res.status(200).json({message:"Filmes ok"});
 });
@@ -11,22 +44,14 @@ router.get("/listar", (req, res) => {
     res.status(200).json(filmes);
 });
 
-router.get("/listar/:nome", (req, res) => {
-  
-    const nome = req.params.nome;
-    const filme = filmes.find((item) => item.nome === nome);
-  
-    res.status(200).json(filme);
-});
-
 router.get("/listar/:id", (req, res) => {
     const id = req.params.id;
     const filme = filmes[id];
-  
-    if (!filme) {
-      res.status(204);
-      return;
-    }
+
+    if (verificaSeEstaCadastrado(filme, res)){
+        return
+    };
+
   
     res.status(200).json(filme);
 });
@@ -34,24 +59,8 @@ router.get("/listar/:id", (req, res) => {
 router.post("/", (req, res) => {
     const filme = req.body;
 
-    if(!filme.nome){
-        res.status(400).json({message:"Nome na requisição está vazio"});
-        return;
-    };
-
-    if(!filme.diretor){
-        res.status(400).json({message:"Diretor na requisição está vazio"});
-        return;
-    };
-
-    if(!filme.genero){
-        res.status(400).json({message:"Gênero na requisição está vazio"});
-        return;
-    };
-
-    if(!filme.lancamento){
-        res.status(400).json({message:"Lançamento na requisição está vazio"});
-        return;
+    if (verificaSeFaltaParametro(filme, res)){
+        return
     };
   
     filmes.push(filme);
@@ -61,6 +70,10 @@ router.post("/", (req, res) => {
 
 router.put("/:id", (req, res) => {
     const id = req.params.id;
+
+    if (verificaSeEstaCadastrado(filmes[id], res) || verificaSeFaltaParametro(req.body, res)){
+        return;
+    };
   
     filmes[id] = req.body;
   
